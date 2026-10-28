@@ -171,7 +171,7 @@ namespace Hypha.Knowledge.Tests
                 using (var gzip = new GZipStream(buffer, CompressionMode.Compress, leaveOpen: true))
                 using (var writer = new TarWriter(gzip, leaveOpen: true))
                 {
-                    var entry = new PaxTarEntry(TarEntryType.RegularFile, executableName)
+                    var entry = new PaxTarEntry(TarEntryType.RegularFile, $"uv-{target}/{executableName}")
                     {
                         DataStream = new MemoryStream(content),
                     };

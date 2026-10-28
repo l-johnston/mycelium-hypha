@@ -1,0 +1,10 @@
+.vscode/**
+.vscode-test/**
+scripts/**
+src/**
+tsconfig.json
+**/*.ts
+**/*.map
+!out/**
+!node_modules/yauzl/**
+!node_modules/pend/**

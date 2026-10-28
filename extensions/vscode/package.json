@@ -1,0 +1,72 @@
+{
+  "name": "mycelium-hypha",
+  "displayName": "Hypha – SysML v2 and KerML",
+  "description": "Release-aware SysML v2 and KerML knowledge tools for GitHub Copilot in VS Code.",
+  "version": "0.1.0",
+  "publisher": "mycelium-cmbse",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mycelium-cmbse/mycelium-hypha"
+  },
+  "homepage": "https://github.com/mycelium-cmbse/mycelium-hypha",
+  "engines": {
+    "vscode": "^1.100.0"
+  },
+  "categories": [
+    "AI"
+  ],
+  "keywords": [
+    "sysml",
+    "sysml-v2",
+    "kerml",
+    "mbse"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "mycelium-hypha.showReleaseStatus",
+        "title": "Hypha: Show Installed Releases"
+      },
+      {
+        "command": "mycelium-hypha.checkReleases",
+        "title": "Hypha: Check Available Releases"
+      },
+      {
+        "command": "mycelium-hypha.installRelease",
+        "title": "Hypha: Install a SysML v2 Release"
+      }
+    ],
+    "languageModelTools": [
+      {
+        "name": "mycelium-hypha_get_release_status",
+        "toolReferenceName": "hyphaReleaseStatus",
+        "displayName": "Hypha Release Status",
+        "modelDescription": "Read-only check of the Hypha release manifest and presence of required generated artifacts in this extension's global storage, which is shared across workspaces on the same VS Code extension host. Use this before answering which SysML v2/KerML releases are recorded as installed, which is the configured default, and whether core generated data or normative specification text is present. It does not check online releases, fetch sources, or generate knowledge. If no manifest is installed, say so and do not infer an installed release.",
+        "userDescription": "Check which Hypha releases are recorded as installed.",
+        "canBeReferencedInPrompt": true,
+        "icon": "$(library)",
+        "inputSchema": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        }
+      }
+    ]
+  },
+  "scripts": {
+    "compile": "tsc -p . && node ./scripts/copy-spec-extract.mjs",
+    "test": "tsc -p . && node ./scripts/copy-spec-extract.mjs && node --test out/*.test.js",
+    "vscode:prepublish": "npm run compile"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/vscode": "^1.100.0",
+    "@types/yauzl": "^2.10.3",
+    "typescript": "^5.9.0"
+  },
+  "dependencies": {
+    "yauzl": "^3.2.0"
+  }
+}
