@@ -3,6 +3,7 @@ import * as vscode from "vscode";
 import { releaseReadiness } from "./readiness";
 import { registerReleaseCommands } from "./releaseCommands";
 import { parseReleaseManifest, type ReleaseManifest } from "./manifest";
+import { lookupKnowledge, type LookupInput } from "./knowledge";
 
 const releaseStatusToolName = "mycelium-hypha_get_release_status";
 
@@ -12,6 +13,21 @@ export function activate(context: vscode.ExtensionContext): void {
   context.subscriptions.push(
     output,
     vscode.lm.registerTool(releaseStatusToolName, new ReleaseStatusTool(context.globalStorageUri)),
+    vscode.lm.registerTool<LookupInput>("mycelium-hypha_lookup_knowledge", {
+      async invoke(options, token) {
+        if (token.isCancellationRequested) {
+          throw new vscode.CancellationError();
+        }
+        try {
+          const result = await lookupKnowledge(context.globalStorageUri.fsPath, options.input);
+          return new vscode.LanguageModelToolResult([new vscode.LanguageModelTextPart(result)]);
+        } catch (error) {
+          const detail = error instanceof Error ? error.message : String(error);
+          output.appendLine(`Knowledge lookup failed: ${detail}`);
+          throw new Error(`Hypha lookup failed: ${detail}. Check installed releases; do not silently substitute another release or general knowledge.`, { cause: error });
+        }
+      }
+    }),
     ...registerReleaseCommands(context, output),
     vscode.commands.registerCommand("mycelium-hypha.showReleaseStatus", async () => {
       try {

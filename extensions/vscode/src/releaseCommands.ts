@@ -4,7 +4,7 @@ import { ensureCli, runCli } from "./cli";
 import { parseReleaseManifest, type ReleaseManifest } from "./manifest";
 import { releaseReadiness } from "./readiness";
 import { availableReleases, type ReleaseCheck } from "./releaseCheck";
-import { provisionSpecExtractor } from "./specExtractor";
+import { provisionRuntimeAssets } from "./runtimeAssets";
 
 export function registerReleaseCommands(
   context: vscode.ExtensionContext,
@@ -49,7 +49,7 @@ export function registerReleaseCommands(
         }
 
         const answer = await vscode.window.showWarningMessage(
-          `Fetch release ${selection.label} and generate its Hypha knowledge in this VS Code extension's global storage? This may download and checksum-verify the Hypha CLI, fetch upstream inputs including OMG specification PDFs, and run the bundled specification extractor. These files remain local on this extension host; nothing is added to your modeling workspace.`,
+          `Fetch release ${selection.label}, make it the default, and generate its Hypha knowledge in this VS Code extension's global storage? This uses the bundled CLI, fetches upstream inputs including OMG specification PDFs, and may download uv, Python and extraction dependencies. These files remain local on this extension host; nothing is added to your modeling workspace.`,
           { modal: true },
           "Fetch and Generate"
         );
@@ -57,7 +57,7 @@ export function registerReleaseCommands(
           return;
         }
 
-        output.appendLine(`Installing ${selection.label} in ${storagePath}.`);
+        output.show(true);
         output.appendLine(`Installing ${selection.label} in ${storagePath}.`);
         await vscode.window.withProgress(
           {
@@ -66,9 +66,9 @@ export function registerReleaseCommands(
             cancellable: true
           },
           async (progress, token) => {
-            progress.report({ message: "Provisioning verified CLI and extractor runtime" });
-            const executable = await ensureCli(storagePath, output, token);
-            await provisionSpecExtractor(context.extensionUri, context.globalStorageUri);
+            progress.report({ message: "Preparing bundled CLI and generation inputs" });
+            const executable = await ensureCli(context.extensionUri.fsPath);
+            await provisionRuntimeAssets(context.extensionUri.fsPath, storagePath);
             progress.report({ message: "Fetching release inputs", increment: 10 });
             await runCli(
               executable,

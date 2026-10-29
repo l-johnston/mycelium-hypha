@@ -18,7 +18,9 @@ export async function releaseReadiness(globalStorageUri: vscode.Uri, tag: string
     }
   }
 
-  const specAvailable = await fileExists(vscode.Uri.joinPath(globalStorageUri, "knowledge", tag, "spec", "index.md"));
+  const specAvailable =
+    await fileExists(vscode.Uri.joinPath(globalStorageUri, "knowledge", tag, "spec", "kerml", "index.md")) &&
+    await fileExists(vscode.Uri.joinPath(globalStorageUri, "knowledge", tag, "spec", "sysml2", "index.md"));
   const coreSummary = missing.length === 0
     ? `Core generated artifacts are present (${present.join(", ")}).`
     : `Core generated artifacts are incomplete. Present: ${present.join(", ") || "none"}. Missing: ${missing.join(", ")}.`;

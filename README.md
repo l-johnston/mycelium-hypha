@@ -13,9 +13,10 @@ mycelium-hypha contains three related parts:
    SysML v2, backed by a knowledge base fetched and generated on your own machine, on request.
    Nothing per-release is committed to this repository.
 2. **The VS Code extension prototype** (`extensions/vscode/`) – a Marketplace-shaped extension for
-   GitHub Copilot that contributes a release-status tool and manages a shared, extension-global
-   Hypha data directory. It can check, fetch and generate releases locally; it is not published to
-   the VS Code Marketplace yet. See its [development guide](extensions/vscode/README.md).
+   GitHub Copilot that contributes release-status and grounded-lookup tools and manages a shared,
+   extension-global Hypha data directory. It can check, fetch and generate releases locally; it is not published to
+   the VS Code Marketplace yet. See its [user guide](extensions/vscode/README.md) or
+   [development guide](extensions/vscode/DEVELOPMENT.md).
 3. **The generation pipelines** (`tools/`) that build the knowledge base from the upstream OMG
    sources. They are not part of the installed plugin – see [Contributing](#contributing) if you
    want to work on them.
@@ -37,7 +38,7 @@ mycelium-hypha/
 ### VS Code GitHub Copilot (prototype)
 
 The extension is under active development and is not yet available in the VS Code Marketplace. To
-run it from this checkout, follow [extensions/vscode/README.md](extensions/vscode/README.md). Its
+run it from this checkout, follow the [development guide](extensions/vscode/DEVELOPMENT.md). Its
 release data is stored in VS Code extension-global storage, shared across workspaces on the same
 extension host.
 

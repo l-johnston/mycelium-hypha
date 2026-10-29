@@ -10,16 +10,6 @@ export function availableReleases(releaseTags: string[], pilotTags: string[]): s
     .sort((left, right) => compareReleaseTags(right, left));
 }
 
-export function findChecksum(releaseBody: string, assetName: string): string | null {
-  const escapedName = assetName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const match = new RegExp(`\`${escapedName}\`\\s*\\|\\s*([0-9a-fA-F]{64})`).exec(releaseBody);
-  return match?.[1]?.toLowerCase() ?? null;
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
 const releasePattern = /^[0-9]{4}-[0-9]{2}(?:\.[0-9]+)?$/;
 
 function compareReleaseTags(left: string, right: string): number {

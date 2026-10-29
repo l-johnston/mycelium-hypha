@@ -1,55 +1,128 @@
-# Hypha VS Code extension feasibility spike
+# Hypha – SysML v2 and KerML
 
-This prototype tests whether one VS Code Marketplace extension can contribute a Copilot
-language-model tool, provision the self-contained Hypha CLI, and fetch/generate a release in
-extension-global storage. Release management is an early slice; switching and removing releases are
-not yet exposed as extension commands.
+Ask GitHub Copilot about SysML v2 and KerML using knowledge from a specific OMG release, rather
+than relying on general model knowledge. Hypha looks up metamodel elements and standard-library
+declarations on your machine and gives Copilot source links to cite in its answers.
 
-The CLI download currently supports Windows x64, Linux x64, and macOS x64/arm64. Web VS Code and
-other extension-host architectures are not supported by this prototype.
+## What you can do
 
-The extension reads:
+- **Explore the metamodel** – ask about elements such as `PartUsage`, their features, inheritance,
+  operations and constraints.
+- **Find standard-library declarations** – look up names such as `ScalarValues::Real`.
+- **Know which release answers your question** – check the default release and whether its
+  generated knowledge is available.
+- **Keep working across folders** – installed knowledge is shared across workspaces on the same
+  VS Code host.
+
+Hypha is a preview and is not yet published to the VS Code Marketplace.
+
+## Get started
+
+You need VS Code 1.100 or later and access to GitHub Copilot Chat with tools enabled.
+Use a trusted local or remote workspace; browser-based VS Code and virtual workspaces are not
+supported.
+
+1. Install the Hypha VSIX for your platform with **Extensions: Install from VSIX…**.
+   In WSL or SSH, install it on the remote host where your workspace runs. You do not need to
+   install .NET, Python, a separate CLI or an Agent Plugin.
+2. Open the Command Palette (**Ctrl+Shift+P**, or **Cmd+Shift+P** on macOS) and run
+   **Hypha: Install a SysML v2 Release**.
+3. Choose a release and confirm the download and generation. This makes it the default release.
+   The first installation needs internet access and may take several minutes.
+4. Run **Hypha: Show Installed Releases** to check readiness. Installation progress and the data
+   location appear in the **Hypha** output channel.
+
+If you previously installed the checkout-based Hypha Agent Plugin, disable it in VS Code while
+using this extension to avoid competing instructions or different data locations.
+
+## Use Hypha in Copilot Chat
+
+1. Open **Copilot Chat** and select **Agent** mode.
+2. Open **Configure Tools** near the chat input.
+3. Search for **Hypha** and enable **Hypha Release Status** and **Hypha Grounded Knowledge Lookup**
+   if they are not already checked.
+4. Type `#hypha` in the chat input to select a tool, or use one of the prompts below.
+
+### Check the release and readiness
 
 ```text
-<ExtensionContext.globalStorageUri>/knowledge/versions.json
+Use #hyphaReleaseStatus to report the default release and artifact readiness.
+Do not fetch or generate anything.
 ```
 
-The storage root belongs to this extension installation on the current VS Code extension host. It is
-shared by workspaces in that host, but is not synchronized to other machines or hosts. The Hypha CLI
-uses this storage root as its `--repository-root`. The CLI is pinned at `1.4.0`, downloaded
-from the project's GitHub release, and verified against the SHA256 in the release notes before being
-run. The extension also packages the Apache-2.0 specification extraction code (not the OMG PDFs) so
-the CLI can extract locally fetched specification PDFs from this global data root.
+### Explore a metamodel element
 
-## Run the prototype
+```text
+Use #hyphaLookup to explain PartUsage from the default release's metamodel.
+Cite the release and source; follow pagination as needed.
+```
 
-1. Install Node.js and npm, then run `npm install` in this directory.
-2. Run `npm test` to type-check the extension and test release-manifest parsing.
-3. Open this directory in VS Code and press **F5** to launch an Extension Development Host.
-4. Run **Hypha: Show Installed Releases** from the Command Palette. The Hypha output channel displays
-   the global storage URI.
-5. In that storage directory, create `knowledge/versions.json` with a local-only test manifest, for
-   example:
+### Find a standard-library declaration
 
-   ```json
-   {
-     "schemaVersion": "1.0.0",
-     "default": "2026-09",
-     "versions": [{ "tag": "2026-09" }]
-   }
-   ```
+```text
+Use #hyphaLookup to find ScalarValues::Real in the default release's model library.
+Cite the release and source, not general knowledge.
+```
 
-6. Run **Hypha: Show Installed Releases** again, then ask Copilot to check which Hypha release is
-   recorded as installed. Enable **Hypha Release Status** in the Chat tools picker if it is not
-   already enabled. The tool reads the same manifest without consulting the open workspace.
-7. Run **Hypha: Check Available Releases** to check installed releases and read-only GitHub tag
-   catalogs. This check does not provision the CLI or write release data.
-8. Run **Hypha: Install a SysML v2 Release**, choose a release, and confirm the fetch/generate
-   operation. Inputs and generated output are written under extension-global storage, not the
-   modeling workspace. The command displays progress and summarizes which core knowledge artifacts
-   and normative specification text are present afterward.
+Answers should identify the release and include clickable source links. Long source pages are
+returned in sections; Copilot can request the next section. If a name is ambiguous, Hypha returns
+matching names rather than choosing one arbitrarily. You can also ask for a particular installed
+release instead of the default.
 
-The synthetic manifest in step 5 is only for testing status; it does not represent a complete
-installation. The extension does not include copyrighted specification text or source artifacts.
-The CLI fetches those materials locally after the user confirms installation. The CLI itself is
-packaged as a verified release download and not embedded in the extension.
+Both tools are read-only: invoking them never downloads inputs or generates knowledge.
+
+## Commands
+
+Run these commands from the Command Palette:
+
+| Command | Purpose |
+| --- | --- |
+| **Hypha: Check Available Releases** | Compare installed releases with upstream releases without downloading release inputs or generating knowledge. |
+| **Hypha: Install a SysML v2 Release** | After confirmation, fetch a release, make it the default and generate its knowledge locally. |
+| **Hypha: Show Installed Releases** | Show installed releases, the default, artifact readiness and the data location. |
+
+## Your knowledge stays available across workspaces
+
+Hypha stores downloaded inputs, generated knowledge and managed runtime caches in VS Code's
+extension-global storage, not in your modeling workspace. Opening another folder on the same host
+uses the same installed releases.
+
+Windows, WSL, SSH hosts and other machines have separate storage; releases are not synchronized
+between them. You can find the storage location with **Hypha: Show Installed Releases**.
+
+**Uninstalling and stored data:** Uninstalling Hypha may leave downloaded releases, generated
+knowledge and runtime caches on disk. Reinstalling can reuse this data. Hypha currently provides no
+command to remove releases or clear all stored data. Use **Hypha: Show Installed Releases** to find
+the data location.
+
+The extension contains its runtime and extraction code, but no release knowledge, specification PDFs
+or extracted specification text. With your confirmation, installation downloads upstream inputs and
+generates knowledge locally. It may also download `uv`, a matching Python and extraction dependencies.
+Source excerpts returned to Copilot are included in its chat context.
+
+## Readiness and troubleshooting
+
+- **No installed release:** run **Hypha: Install a SysML v2 Release**.
+- **Core artifacts are incomplete:** installation may have been interrupted. Run installation again
+  for the same release; existing downloaded inputs are reused.
+- **Normative specification text is missing:** core lookups can still work. Check the Hypha output
+  channel for extraction or download problems, then retry installation for the same release.
+- **Tools are not listed:** check that Hypha is enabled on the current workspace host, reload the
+  window and open a new Agent chat. Check **Configure Tools** again.
+
+A manifest entry alone does not mean generation finished. Status checks report artifact presence,
+not a full integrity check.
+
+## Current limits
+
+- Hypha supports **SysML v2 and KerML**, not UML.
+- Lookups provide source-backed knowledge, not compiler validation of your models.
+- The lookup tool reads metamodel and model-library sources; it does not search or quote normative
+  specification text, even when that text is installed.
+- Switching the default without installation and removing releases are not yet exposed as extension
+  commands.
+- Package targets are Windows x64, Linux x64 and macOS x64/arm64. End-to-end validation has currently
+  been completed on Linux/WSL.
+
+For feedback and source code, visit the
+[Hypha repository](https://github.com/mycelium-cmbse/mycelium-hypha).

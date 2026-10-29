@@ -176,6 +176,11 @@ namespace Hypha.Knowledge.Toolchain
                 Extract(archivePath, binDirectory.FullName, target);
                 File.Delete(archivePath);
                 executable = this.Executable(PinnedVersion, target);
+                if (!executable.Exists)
+                {
+                    this.logger.LogWarning("uv {Version} archive did not contain the expected executable", PinnedVersion);
+                    return null;
+                }
 
                 if (!OperatingSystem.IsWindows())
                 {
